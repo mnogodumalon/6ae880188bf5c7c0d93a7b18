@@ -1,0 +1,63 @@
+{
+  "TerminabstimmungenDialog.tsx": {
+    "abstimmungsnummer": "z. B. TA-2026-001",
+    "titel": "z. B. Projekt-Kickoff",
+    "beschreibung": "Agenda und Hinweise zum Termin",
+    "organisator_vorname": "z. B. Anna",
+    "organisator_nachname": "z. B. Müller",
+    "organisator_email": "z. B. anna.mueller@firma.de",
+    "standarddauer_minuten": "z. B. 60",
+    "ort": "z. B. Besprechungsraum 2",
+    "meeting_link": "z. B. https://meet.example.com/abc",
+    "antwortfrist": "Bis wann antworten?",
+    "status": "z. B. Entwurf, Versendet",
+    "entscheidungskommentar": "Begründung der Entscheidung",
+    "festgelegt_am": "Wann wurde festgelegt?",
+    "abgesagt_am": "Wann wurde abgesagt?",
+    "google_kalender_id": "z. B. abc123@group.calendar",
+    "outlook_kalender_id": "z. B. AAMkAGI2...",
+    "ics_sequenz": "z. B. 0"
+  },
+  "TerminvorschlaegeDialog.tsx": {
+    "terminabstimmung": "Welche Terminabstimmung?",
+    "start": "Wann beginnt der Termin?",
+    "ende": "Wann endet der Termin?",
+    "ort_abweichend": "z. B. Raum 2, Berlin",
+    "meeting_link_abweichend": "z. B. https://meet.example.com/abc",
+    "reihenfolge": "z. B. 1",
+    "anzahl_ja": "z. B. 5",
+    "anzahl_wenn_noetig": "z. B. 2",
+    "anzahl_nein": "z. B. 1",
+    "anzahl_ohne_antwort": "z. B. 3",
+    "anzahl_pflichtteilnehmer_ja": "z. B. 2"
+  },
+  "TeilnehmerDialog.tsx": {
+    "terminabstimmung": "Welche Terminabstimmung?",
+    "vorname": "z. B. Anna",
+    "nachname": "z. B. Müller",
+    "email": "z. B. anna.mueller@firma.de",
+    "organisation": "z. B. Muster GmbH",
+    "zugriffstoken": "z. B. a7f3k9x2",
+    "abstimmungslink": "z. B. https://abstimmung.de/a7f3",
+    "einladungsstatus": "z. B. Versendet, Geöffnet",
+    "einladung_versendet_am": "Wann wurde eingeladen?",
+    "erinnerung_versendet_am": "Wann wurde erinnert?",
+    "geantwortet_am": "Wann kam die Antwort?",
+    "allgemeiner_kommentar": "Anmerkungen zur Person oder Antwort"
+  },
+  "RueckmeldungenDialog.tsx": {
+    "terminabstimmung": "Welche Terminabstimmung?",
+    "terminvorschlag": "Welcher Terminvorschlag?",
+    "teilnehmer": "Wer antwortet?",
+    "kommentar": "Anmerkung zur Antwort",
+    "antwortzeitpunkt": "Wann wurde geantwortet?",
+    "letzte_aenderung": "Wann zuletzt geändert?"
+  },
+  "AlternativeTerminvorschlaegeDialog.tsx": {
+    "terminabstimmung": "Welche Terminabstimmung?",
+    "vorgeschlagen_von": "Wer schlägt vor?",
+    "start": "Wann beginnt der Termin?",
+    "ende": "Wann endet der Termin?",
+    "kommentar": "Begründung oder Hinweis zum Vorschlag"
+  }
+}

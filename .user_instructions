@@ -1,0 +1,621 @@
+# Prompt: Terminabstimmungs-Tool mit Google Kalender, Outlook und iCalendar-Dateien
+
+Erstelle in LivingApps eine vollständige Webanwendung zur Abstimmung von Terminen mit internen und externen Teilnehmern.
+
+Die Anwendung soll es ermöglichen, mehrere Terminvorschläge zu erstellen, Teilnehmer per E-Mail einzuladen, Rückmeldungen einzusammeln, einen finalen Termin verbindlich festzulegen und diesen anschließend als Kalendereintrag bereitzustellen.
+
+Die Anwendung muss ohne zwingende Kalenderintegration vollständig nutzbar sein. Wenn eine direkte Integration mit Google Calendar oder Microsoft Outlook technisch verfügbar und konfigurierbar ist, soll sie optional angeboten werden. Falls keine Integration verfügbar ist, muss die Anwendung für den finalen Termin eine standardkonforme herunterladbare iCalendar-Datei (`.ics`) erzeugen.
+
+## 1. Ziel und Kernprozess
+
+Der Prozess lautet:
+
+1. Organisator erstellt eine Terminabstimmung.
+2. Organisator hinterlegt mehrere konkrete Terminoptionen.
+3. Organisator fügt Teilnehmer mit Name und E-Mail-Adresse hinzu.
+4. Teilnehmer erhalten per E-Mail einen persönlichen Link zur Abstimmung.
+5. Teilnehmer bewerten jede Option mit:
+   - Ja
+   - Wenn nötig
+   - Nein
+6. Der Organisator sieht eine übersichtliche Auswertung.
+7. Der Organisator legt einen Termin verbindlich fest.
+8. Alle Teilnehmer erhalten eine Bestätigungs-E-Mail.
+9. Die Bestätigung enthält:
+   - Datum und Uhrzeit;
+   - Dauer;
+   - Titel;
+   - Beschreibung bzw. Agenda;
+   - Ort oder Online-Meeting-Link;
+   - Download einer `.ics`-Datei;
+   - falls technisch verfügbar: Links zum Hinzufügen in Google Calendar und Outlook.
+
+Die Anwendung soll auf Deutsch aufgebaut werden. Die Zeitzone ist standardmäßig `Europe/Berlin`.
+
+---
+
+## 2. Rollen und Berechtigungen
+
+### Organisator
+
+Der Organisator kann:
+
+- Terminabstimmungen erstellen, bearbeiten, versenden und löschen;
+- Terminoptionen anlegen, ändern und entfernen;
+- Teilnehmer anlegen, ändern, entfernen und erneut einladen;
+- alle Rückmeldungen und Kommentare sehen;
+- Erinnerungen an Teilnehmer ohne Rückmeldung senden;
+- einen finalen Termin verbindlich festlegen;
+- die Abstimmung absagen oder archivieren;
+- eine `.ics`-Datei herunterladen;
+- eine finale Terminbestätigung versenden.
+
+### Teilnehmer
+
+Teilnehmer können ausschließlich über ihren persönlichen Link:
+
+- die Abstimmungsdetails sehen;
+- für jede Terminoption abstimmen;
+- Kommentare hinterlegen;
+- einen eigenen alternativen Terminvorschlag hinterlegen;
+- ihre Antwort bis zur Frist ändern, sofern die Abstimmung noch offen ist;
+- nach Terminbestätigung die Termindetails und die `.ics`-Datei herunterladen.
+
+Teilnehmer dürfen keine Rückmeldungen anderer Teilnehmer sehen.
+
+---
+
+## 3. Datenmodell
+
+Erstelle die folgenden Tabellen bzw. Datenobjekte mit Beziehungen.
+
+### Tabelle: `Terminabstimmungen`
+
+Ein Datensatz entspricht einer Terminabstimmung.
+
+| Feld | Datentyp | Pflicht | Beschreibung |
+|---|---|---:|---|
+| ID | System-ID | Ja | Eindeutige interne ID |
+| Abstimmungsnummer | Text | Ja | Eindeutige, lesbare Kennung, z. B. `TA-2026-0001` |
+| Titel | Text | Ja | Titel der Terminabstimmung |
+| Beschreibung | Langer Text | Nein | Zweck, Agenda oder Hintergrund |
+| Organisator | Benutzerbezug | Ja | Ersteller und Verantwortlicher |
+| Organisator-Name | Text | Ja | Anzeigename für E-Mails |
+| Organisator-E-Mail | E-Mail | Ja | Antwortadresse |
+| Standarddauer in Minuten | Zahl | Ja | Beispielsweise 30, 60 oder 90 Minuten |
+| Ort | Text | Nein | Adresse, Besprechungsraum oder „Online“ |
+| Online-Meeting-Link | URL | Nein | Teams-, Zoom-, Meet- oder anderer Link |
+| Zeitzone | Auswahl | Ja | Standard: `Europe/Berlin` |
+| Antwortfrist | Datum/Uhrzeit | Ja | Bis wann Rückmeldungen möglich sind |
+| Entscheidungsregel | Auswahl | Ja | `Organisator entscheidet`, `Alle Pflichtteilnehmer müssen verfügbar sein`, `Mehrheit entscheidet` |
+| Status | Auswahl | Ja | `Entwurf`, `Versendet`, `In Abstimmung`, `Abgelaufen`, `Festgelegt`, `Abgesagt`, `Archiviert` |
+| Finaler Terminvorschlag | Bezug auf Terminvorschläge | Nein | Der verbindlich ausgewählte Termin |
+| Entscheidungskommentar | Langer Text | Nein | Begründung oder Hinweis des Organisators |
+| Erstellt am | Datum/Uhrzeit | Ja | Systemzeitpunkt |
+| Geändert am | Datum/Uhrzeit | Ja | Systemzeitpunkt |
+| Festgelegt am | Datum/Uhrzeit | Nein | Zeitpunkt der verbindlichen Entscheidung |
+| Abgesagt am | Datum/Uhrzeit | Nein | Zeitpunkt einer Absage |
+
+### Tabelle: `Terminvorschläge`
+
+Jede Terminabstimmung hat einen oder mehrere Terminvorschläge.
+
+| Feld | Datentyp | Pflicht | Beschreibung |
+|---|---|---:|---|
+| ID | System-ID | Ja | Eindeutige interne ID |
+| Terminabstimmung | Bezug auf Terminabstimmungen | Ja | Zugehörige Abstimmung |
+| Startdatum und Startzeit | Datum/Uhrzeit | Ja | Beginn des Vorschlags |
+| Enddatum und Endzeit | Datum/Uhrzeit | Ja | Ende des Vorschlags |
+| Ort abweichend | Text | Nein | Nur falls vom Standardort abweichend |
+| Meeting-Link abweichend | URL | Nein | Nur falls vom Standardlink abweichend |
+| Reihenfolge | Zahl | Ja | Reihenfolge in der Anzeige |
+| Anzahl Ja | Berechnetes Feld | Ja | Anzahl der Antworten „Ja“ |
+| Anzahl Wenn nötig | Berechnetes Feld | Ja | Anzahl der Antworten „Wenn nötig“ |
+| Anzahl Nein | Berechnetes Feld | Ja | Anzahl der Antworten „Nein“ |
+| Anzahl ohne Antwort | Berechnetes Feld | Ja | Anzahl eingeladener Teilnehmer ohne Antwort |
+| Anzahl Pflichtteilnehmer Ja | Berechnetes Feld | Ja | Verfügbare Pflichtteilnehmer |
+| Eignung | Berechnetes Feld | Ja | Bewertung für die Entscheidung |
+| Final gewählt | Ja/Nein | Ja | Kennzeichnung des finalen Termins |
+
+### Tabelle: `Teilnehmer`
+
+Jeder Teilnehmer ist einer Terminabstimmung zugeordnet.
+
+| Feld | Datentyp | Pflicht | Beschreibung |
+|---|---|---:|---|
+| ID | System-ID | Ja | Eindeutige interne ID |
+| Terminabstimmung | Bezug auf Terminabstimmungen | Ja | Zugehörige Abstimmung |
+| Vorname | Text | Ja | Vorname |
+| Nachname | Text | Ja | Nachname |
+| Anzeigename | Berechnetes Feld | Ja | Vorname und Nachname |
+| E-Mail-Adresse | E-Mail | Ja | Eindeutige Empfängeradresse |
+| Organisation | Text | Nein | Unternehmen oder Bereich |
+| Rolle | Auswahl | Ja | `Pflichtteilnehmer`, `Optionaler Teilnehmer`, `Entscheider`, `Organisator` |
+| Persönlicher Zugriffstoken | Text | Ja | Langer, zufälliger, nicht erratbarer Wert |
+| Persönlicher Abstimmungslink | Berechnetes Feld | Ja | URL mit Zugriffstoken |
+| Einladungsstatus | Auswahl | Ja | `Nicht versendet`, `Versendet`, `Erinnert`, `Geöffnet`, `Geantwortet`, `Abgesagt` |
+| Einladung versendet am | Datum/Uhrzeit | Nein | Versandzeitpunkt |
+| Erinnerung versendet am | Datum/Uhrzeit | Nein | Letzter Erinnerungszeitpunkt |
+| Geantwortet am | Datum/Uhrzeit | Nein | Zeitpunkt der ersten oder letzten Antwort |
+| Allgemeiner Kommentar | Langer Text | Nein | Kommentar unabhängig von einem Vorschlag |
+| Teilnahme vollständig abgesagt | Ja/Nein | Ja | Absage für gesamte Abstimmung |
+
+### Tabelle: `Rückmeldungen`
+
+Ein Datensatz entspricht der Antwort eines Teilnehmers auf einen Terminvorschlag.
+
+| Feld | Datentyp | Pflicht | Beschreibung |
+|---|---|---:|---|
+| ID | System-ID | Ja | Eindeutige interne ID |
+| Terminabstimmung | Bezug auf Terminabstimmungen | Ja | Zugehörige Abstimmung |
+| Terminvorschlag | Bezug auf Terminvorschläge | Ja | Bewertete Option |
+| Teilnehmer | Bezug auf Teilnehmer | Ja | Antwortender Teilnehmer |
+| Verfügbarkeit | Auswahl | Ja | `Ja`, `Wenn nötig`, `Nein` |
+| Kommentar | Langer Text | Nein | Kommentar zur konkreten Option |
+| Antwortzeitpunkt | Datum/Uhrzeit | Ja | Zeitpunkt der Antwort |
+| Letzte Änderung | Datum/Uhrzeit | Ja | Zeitpunkt der letzten Änderung |
+
+### Tabelle: `Alternative Terminvorschläge`
+
+Teilnehmer können zusätzliche Optionen vorschlagen.
+
+| Feld | Datentyp | Pflicht | Beschreibung |
+|---|---|---:|---|
+| ID | System-ID | Ja | Eindeutige interne ID |
+| Terminabstimmung | Bezug auf Terminabstimmungen | Ja | Zugehörige Abstimmung |
+| Vorgeschlagen von | Bezug auf Teilnehmer | Ja | Teilnehmer |
+| Startdatum und Startzeit | Datum/Uhrzeit | Ja | Beginn |
+| Enddatum und Endzeit | Datum/Uhrzeit | Ja | Ende |
+| Kommentar | Langer Text | Nein | Begründung oder Hinweis |
+| Status | Auswahl | Ja | `Neu`, `Übernommen`, `Abgelehnt` |
+
+---
+
+## 4. Pflichtvalidierungen
+
+Setze die folgenden Regeln um:
+
+- Eine Terminabstimmung kann nur versendet werden, wenn mindestens ein Terminvorschlag und mindestens ein Teilnehmer vorhanden sind.
+- Das Enddatum eines Terminvorschlags muss nach dem Startdatum liegen.
+- Die Antwortfrist darf nicht vor dem Versandzeitpunkt liegen.
+- E-Mail-Adressen müssen valide sein.
+- Ein Teilnehmer darf innerhalb derselben Terminabstimmung nur einmal mit derselben E-Mail-Adresse angelegt werden.
+- Jeder Teilnehmer erhält einen eigenen, eindeutigen und ausreichend langen Zugriffstoken.
+- Eine Rückmeldung darf nur durch den Teilnehmer mit passendem Zugriffstoken erstellt oder geändert werden.
+- Nach Ablauf der Antwortfrist dürfen Teilnehmer standardmäßig nicht mehr abstimmen.
+- Nach Status `Festgelegt`, `Abgesagt` oder `Archiviert` dürfen keine Rückmeldungen mehr geändert werden.
+- Es darf nur genau ein finaler Terminvorschlag pro Terminabstimmung existieren.
+- Ein finaler Termin kann nur festgelegt werden, wenn mindestens ein Terminvorschlag vorhanden ist.
+- Beim Festlegen eines finalen Termins erhalten alle anderen Vorschläge automatisch den Wert `Final gewählt = Nein`.
+
+---
+
+## 5. Masken und Ansichten
+
+### A. Dashboard für Organisatoren
+
+Erstelle ein Dashboard mit folgenden Bereichen:
+
+- **Entwürfe**
+- **Offene Abstimmungen**
+- **Abstimmungen mit abgelaufener Frist**
+- **Festgelegte Termine**
+- **Archiv**
+
+Zeige je Abstimmung:
+
+- Titel;
+- Status;
+- Antwortfrist;
+- Anzahl Teilnehmer;
+- Anzahl eingegangener Antworten;
+- Anzahl ausstehender Antworten;
+- finalen Termin, falls festgelegt;
+- Schnellaktionen:
+  - Bearbeiten
+  - Einladung versenden
+  - Erinnerung senden
+  - Auswertung öffnen
+  - Termin festlegen
+  - Absagen
+  - Archivieren
+
+### B. Formular „Terminabstimmung erstellen“
+
+Das Formular enthält:
+
+1. Grunddaten:
+   - Titel
+   - Beschreibung
+   - Organisator
+   - Dauer
+   - Ort
+   - Online-Meeting-Link
+   - Zeitzone
+   - Antwortfrist
+   - Entscheidungsregel
+
+2. Terminvorschläge:
+   - beliebig viele Vorschläge hinzufügen;
+   - für jeden Vorschlag Start und Ende erfassen;
+   - Vorschläge entfernen oder umsortieren.
+
+3. Teilnehmer:
+   - Name;
+   - E-Mail-Adresse;
+   - Organisation;
+   - Rolle;
+   - mehrere Teilnehmer direkt hinzufügen;
+   - optional Import aus vorhandenen Kontakten.
+
+4. Aktionen:
+   - Als Entwurf speichern
+   - Vorschau der Einladung anzeigen
+   - Einladung versenden
+
+### C. Teilnehmerseite zur Abstimmung
+
+Die Teilnehmerseite ist über einen persönlichen Link erreichbar und enthält:
+
+- Titel der Abstimmung;
+- Beschreibung / Agenda;
+- Organisator;
+- Antwortfrist;
+- Ort und/oder Online-Meeting-Link;
+- Hinweis auf die Zeitzone;
+- Tabelle aller Terminoptionen;
+- Auswahl pro Option:
+  - Ja
+  - Wenn nötig
+  - Nein
+- Kommentarfeld je Terminoption;
+- allgemeines Kommentarfeld;
+- Schaltfläche zum Vorschlagen eines alternativen Termins;
+- Schaltfläche **„Antwort verbindlich speichern“**.
+
+Zeige nach dem Speichern eine eindeutige Bestätigung:
+
+> Deine Rückmeldung wurde gespeichert. Du kannst sie bis zum Ablauf der Abstimmungsfrist über denselben Link ändern.
+
+### D. Auswertung und Terminentscheidung
+
+Die Auswertung zeigt für jede Terminoption:
+
+- Datum;
+- Uhrzeit;
+- Dauer;
+- Anzahl „Ja“;
+- Anzahl „Wenn nötig“;
+- Anzahl „Nein“;
+- Anzahl ohne Antwort;
+- Anzahl verfügbarer Pflichtteilnehmer;
+- Rang bzw. Eignung;
+- vollständige Teilnehmerliste mit jeweiligem Status;
+- Kommentare.
+
+Die Darstellung soll klar priorisieren:
+
+1. Optionen, an denen alle Pflichtteilnehmer verfügbar sind;
+2. Optionen mit den meisten „Ja“-Stimmen;
+3. Optionen mit wenigen oder keinen Absagen.
+
+Der Organisator kann über die Aktion **„Diesen Termin verbindlich festlegen“** eine Option auswählen.
+
+Vor der verbindlichen Festlegung erscheint eine Bestätigung mit:
+
+- finalem Datum und Uhrzeit;
+- Titel;
+- Teilnehmerzahl;
+- Liste von Teilnehmern mit „Nein“ oder ohne Rückmeldung;
+- Auswahl, ob sofort eine Terminbestätigung versendet werden soll.
+
+---
+
+## 6. E-Mail-Vorlagen
+
+### Einladung zur Abstimmung
+
+**Betreff:**
+
+```text
+Terminabstimmung: {{Titel}}
+```
+
+**Text:**
+
+```text
+Hallo {{Teilnehmer.Anzeigename}},
+
+für folgenden Termin benötigen wir deine Rückmeldung:
+
+{{Terminabstimmung.Titel}}
+
+{{Terminabstimmung.Beschreibung}}
+
+Bitte gib deine Verfügbarkeit bis spätestens {{Terminabstimmung.Antwortfrist}} an.
+
+Zur Abstimmung:
+{{Teilnehmer.Persönlicher Abstimmungslink}}
+
+Ort / Einwahllink:
+{{Terminabstimmung.Ort}}
+{{Terminabstimmung.Online-Meeting-Link}}
+
+Viele Grüße
+
+{{Terminabstimmung.Organisator-Name}}
+```
+
+### Erinnerung bei fehlender Rückmeldung
+
+**Betreff:**
+
+```text
+Erinnerung: Rückmeldung zur Terminabstimmung {{Titel}}
+```
+
+**Text:**
+
+```text
+Hallo {{Teilnehmer.Anzeigename}},
+
+deine Rückmeldung zur folgenden Terminabstimmung steht noch aus:
+
+{{Terminabstimmung.Titel}}
+
+Die Antwortfrist endet am {{Terminabstimmung.Antwortfrist}}.
+
+Bitte stimme hier ab:
+{{Teilnehmer.Persönlicher Abstimmungslink}}
+
+Viele Grüße
+
+{{Terminabstimmung.Organisator-Name}}
+```
+
+### Termin verbindlich festgelegt
+
+**Betreff:**
+
+```text
+Termin bestätigt: {{Titel}} am {{FinalerTermin.Startdatum}}
+```
+
+**Text:**
+
+```text
+Hallo {{Teilnehmer.Anzeigename}},
+
+der Termin wurde verbindlich festgelegt.
+
+Titel:
+{{Terminabstimmung.Titel}}
+
+Datum und Uhrzeit:
+{{FinalerTermin.Startdatum}} bis {{FinalerTermin.Enddatum}}
+Zeitzone: {{Terminabstimmung.Zeitzone}}
+
+Ort:
+{{FinalerTermin.OrtOderStandardort}}
+
+Einwahllink:
+{{FinalerTermin.LinkOderStandardlink}}
+
+Beschreibung / Agenda:
+{{Terminabstimmung.Beschreibung}}
+
+Du kannst den Termin über die beigefügte Kalenderdatei in deinen Kalender übernehmen.
+
+{{LinkZumICSDownload}}
+
+Viele Grüße
+
+{{Terminabstimmung.Organisator-Name}}
+```
+
+### Termin abgesagt
+
+**Betreff:**
+
+```text
+Terminabsage: {{Titel}}
+```
+
+**Text:**
+
+```text
+Hallo {{Teilnehmer.Anzeigename}},
+
+die Terminabstimmung "{{Terminabstimmung.Titel}}" wurde abgesagt.
+
+{{Terminabstimmung.Entscheidungskommentar}}
+
+Viele Grüße
+
+{{Terminabstimmung.Organisator-Name}}
+```
+
+---
+
+## 7. iCalendar-Datei (`.ics`) als verbindlicher Standard
+
+Nach Festlegung eines finalen Termins muss die Anwendung automatisch eine herunterladbare Datei im Format `iCalendar` mit der Dateiendung `.ics` erzeugen.
+
+Die `.ics`-Datei ist die verbindliche Fallback-Lösung und muss unabhängig von einer Google- oder Microsoft-Integration funktionieren.
+
+Die Datei muss mit Google Calendar, Microsoft Outlook, Apple Kalender und anderen üblichen Kalenderprogrammen kompatibel sein.
+
+Verwende für die Kalenderdatei mindestens diese Struktur:
+
+```ics
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//WUCE//Terminabstimmung//DE
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:{{EindeutigeTerminID}}@{{EigeneDomain}}
+DTSTAMP:{{UTC-Erstellzeitpunkt}}
+DTSTART;TZID=Europe/Berlin:{{StartdatumUndZeitImFormatYYYYMMDDTHHMMSS}}
+DTEND;TZID=Europe/Berlin:{{EnddatumUndZeitImFormatYYYYMMDDTHHMMSS}}
+SUMMARY:{{Terminabstimmung.Titel}}
+DESCRIPTION:{{Terminabstimmung.BeschreibungAlsEscapterText}}
+LOCATION:{{OrtOderOnlineLink}}
+URL:{{LinkZurTerminabstimmungOderFinalenTerminseite}}
+ORGANIZER;CN={{Terminabstimmung.Organisator-Name}}:mailto:{{Terminabstimmung.Organisator-E-Mail}}
+STATUS:CONFIRMED
+SEQUENCE:0
+END:VEVENT
+END:VCALENDAR
+```
+
+Zusätzliche Anforderungen:
+
+- Nutze eine stabile, weltweit eindeutige `UID`.
+- Speichere Datum und Uhrzeit korrekt in der Zeitzone `Europe/Berlin`.
+- Berücksichtige Sommer- und Winterzeit.
+- Ersetze Zeilenumbrüche und Sonderzeichen in `DESCRIPTION` nach dem iCalendar-Standard.
+- Verwende einen Dateinamen nach diesem Muster:
+
+```text
+{{Titel-bereinigt}}-{{Datum-im-Format-YYYY-MM-DD}}.ics
+```
+
+- Stelle die `.ics`-Datei bereit:
+  - auf der finalen Terminseite;
+  - als Download für den Organisator;
+  - als Link oder Anhang in der Bestätigungs-E-Mail an Teilnehmer.
+
+Wenn sich ein bereits festgelegter Termin ändert, erhöhe `SEQUENCE` und erstelle eine aktualisierte `.ics`-Datei mit derselben `UID`. Wenn ein Termin abgesagt wird, erzeuge optional zusätzlich eine iCalendar-Datei mit `STATUS:CANCELLED`.
+
+---
+
+## 8. Optionale Google-Calendar-Integration
+
+Wenn eine direkte Google-Calendar-Integration technisch möglich ist, implementiere sie als **optionale Funktion**. Die Anwendung muss auch ohne diese Integration funktionieren.
+
+### Anforderungen
+
+- Der Organisator kann seinen Google-Account über OAuth 2.0 verbinden.
+- Die Verbindung darf nur nach ausdrücklicher Zustimmung des Organisators erfolgen.
+- Nach Festlegung des finalen Termins kann der Organisator auswählen:
+  - nur `.ics`-Datei erzeugen;
+  - Termin in Google Calendar anlegen;
+  - beides.
+- Beim Anlegen im Google Calendar werden übertragen:
+  - Titel;
+  - Beschreibung;
+  - Start- und Endzeit;
+  - Zeitzone;
+  - Ort;
+  - Online-Meeting-Link;
+  - Organisator;
+  - Teilnehmer-E-Mail-Adressen als eingeladene Gäste.
+- Der Organisator entscheidet vor dem Speichern, ob Google Calendar automatisch Einladungen an Gäste senden soll.
+- Die externe Kalender-ID muss in der Terminabstimmung gespeichert werden.
+- Änderungen am finalen Termin müssen bei aktivierter Integration den bestehenden Kalendereintrag aktualisieren, nicht neu duplizieren.
+- Eine Absage muss den Kalendereintrag stornieren oder entfernen.
+- Bei fehlender Berechtigung, abgelaufener Anmeldung oder technischem Fehler muss eine klare Fehlermeldung erscheinen und die `.ics`-Datei weiterhin zur Verfügung stehen.
+
+### Alternativer Google-Calendar-Link
+
+Falls keine API-Integration möglich ist, generiere zumindest einen Link zum manuellen Hinzufügen in Google Calendar. Der Link soll vorausgefüllt sein mit:
+
+- Titel;
+- Startzeit;
+- Endzeit;
+- Beschreibung;
+- Ort;
+- Zeitzone.
+
+---
+
+## 9. Optionale Microsoft-Outlook-Integration
+
+Wenn eine direkte Microsoft-365- bzw. Outlook-Integration technisch möglich ist, implementiere sie als **optionale Funktion**. Die Anwendung muss auch ohne diese Integration funktionieren.
+
+### Anforderungen
+
+- Der Organisator kann seinen Microsoft-Account über OAuth 2.0 verbinden.
+- Die Verbindung darf nur nach ausdrücklicher Zustimmung des Organisators erfolgen.
+- Nach Festlegung des finalen Termins kann der Organisator auswählen:
+  - nur `.ics`-Datei erzeugen;
+  - Termin im Outlook-/Microsoft-365-Kalender anlegen;
+  - beides.
+- Beim Anlegen des Termins werden übertragen:
+  - Titel;
+  - Beschreibung;
+  - Start- und Endzeit;
+  - Zeitzone;
+  - Ort;
+  - Online-Meeting-Link;
+  - Teilnehmer-E-Mail-Adressen.
+- Der Organisator entscheidet, ob Einladungen an Teilnehmer direkt über Microsoft 365 versendet werden sollen.
+- Die externe Kalender-ID muss gespeichert werden.
+- Änderungen am finalen Termin müssen den vorhandenen Outlook-Termin aktualisieren.
+- Bei Absage soll der Kalendereintrag abgesagt oder gelöscht werden.
+- Bei Verbindungsfehlern oder fehlenden Berechtigungen bleibt der `.ics`-Download verfügbar.
+
+### Alternativer Outlook-Link
+
+Falls keine direkte Microsoft-Integration möglich ist, stelle einen Link zur manuellen Erstellung eines Outlook-Termins bereit, soweit dies technisch zuverlässig möglich ist. Wenn dies nicht zuverlässig umsetzbar ist, verwende ausschließlich die `.ics`-Datei.
+
+---
+
+## 10. Technische Priorität und Fallback-Logik
+
+Die Anwendung folgt dieser Priorität:
+
+1. **Terminumfrage und Auswertung funktionieren vollständig innerhalb von LivingApps.**
+2. **Nach Festlegung wird immer eine `.ics`-Datei erzeugt.**
+3. Google- und Outlook-Integration sind optionale Erweiterungen.
+4. Fehler in externen Integrationen dürfen niemals verhindern, dass:
+   - der Termin verbindlich festgelegt wird;
+   - die Bestätigung versendet wird;
+   - die `.ics`-Datei heruntergeladen werden kann.
+
+Zeige bei nicht verfügbarer Integration diesen Hinweis:
+
+```text
+Eine direkte Kalenderverbindung ist in dieser Umgebung nicht verfügbar. Du kannst den finalen Termin über die bereitgestellte iCalendar-Datei (.ics) in Google Calendar, Outlook, Apple Kalender oder einen anderen Kalender übernehmen.
+```
+
+---
+
+## 11. Datenschutz und Sicherheit
+
+Setze folgende Anforderungen um:
+
+- Teilnehmer erhalten ausschließlich persönliche, nicht erratbare Zugriffslinks.
+- Der Zugriffstoken darf nicht aus Name, E-Mail-Adresse oder fortlaufenden Nummern bestehen.
+- Teilnehmer sehen nur ihre eigenen Antworten.
+- Nur Organisatoren und explizit berechtigte interne Nutzer sehen die Gesamtauswertung.
+- Speichere nur notwendige personenbezogene Daten:
+  - Name;
+  - E-Mail-Adresse;
+  - Organisation, sofern erforderlich;
+  - Verfügbarkeitsangaben;
+  - Kommentare.
+- Der Organisator kann eine Terminabstimmung inklusive Teilnehmer- und Rückmeldedaten löschen oder archivieren.
+- Nach Ablauf einer definierbaren Aufbewahrungsfrist sollen abgeschlossene Abstimmungen gelöscht oder anonymisiert werden können.
+- Externe Kalenderverbindungen dürfen nur mit expliziter Einwilligung eingerichtet werden.
+- Zugangsdaten oder OAuth-Token dürfen nicht im Klartext angezeigt werden.
+
+---
+
+## 12. Akzeptanzkriterien
+
+Die Anwendung ist erst fertig, wenn folgende Fälle funktionieren:
+
+1. Ein Organisator erstellt eine Abstimmung mit mindestens drei Terminoptionen und fünf Teilnehmern.
+2. Jeder Teilnehmer erhält einen persönlichen Abstimmungslink.
+3. Teilnehmer können je Terminoption mit „Ja“, „Wenn nötig“ oder „Nein“ antworten.
+4. Der Organisator sieht in Echtzeit oder nach Aktualisierung eine vollständige Auswertung.
+5. Nichtantwortende Teilnehmer können gezielt erinnert werden.
+6. Der Organisator kann einen Termin manuell verbindlich festlegen.
+7. Nach Festlegung wird eine Terminbestätigung erstellt und versendet.
+8. Für den finalen Termin kann eine valide `.ics`-Datei heruntergeladen werden.
+9. Die `.ics`-Datei lässt sich mindestens in Outlook und Google Calendar importieren.
+10. Falls eine direkte Google- oder Microsoft-Integration verfügbar ist, kann der Organisator den Termin in den verbundenen Kalender übertragen.
+11. Falls die externe Integration nicht verfügbar ist oder fehlschlägt, bleibt der `.ics`-Download ohne Einschränkung nutzbar.
+12. Teilnehmer können weder Rückmeldungen anderer Teilnehmer noch interne Auswertungen sehen.

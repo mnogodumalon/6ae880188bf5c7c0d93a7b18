@@ -1,0 +1,42 @@
+{
+  "pages": {
+    "en": {
+      "Ablauf geöffnet": "Workflow opened",
+      "Aktuell läuft keine Abstimmung.": "No poll is currently running.",
+      "Alle haben geantwortet — nächste Frist bei „{0}“ am {1}.": "Everyone has responded — next deadline for \"{0}\" on {1}.",
+      "Alle haben geantwortet — nächste Frist: {0}": "Everyone has responded — next deadline: {0}",
+      "Bei „{0}“ ist die Frist abgelaufen — Zeit, einen Termin festzulegen.": "The deadline for \"{0}\" has passed — time to set a date.",
+      "Beste Terminvorschläge": "Best proposed dates",
+      "Einladung versenden": "Send invitation",
+      "Erinnern": "Remind",
+      "Erinnerung nötig": "Reminder needed",
+      "Festgelegt": "Set",
+      "Festgelegt: {0}.": "Set: {0}.",
+      "Festlegen": "Set date",
+      "Frist": "Deadline",
+      "Frist abgelaufen: {0} warten auf eine Entscheidung.": "Deadline passed: {0} awaiting a decision.",
+      "Frist abgelaufen: „{0}“ — {1} von {2} haben geantwortet.": "Deadline passed: \"{0}\" — {1} of {2} have responded.",
+      "Im Ablauf bestätigen": "Confirm in workflow",
+      "Keine Antwort": "No response",
+      "Keine offene Abstimmung ohne Rückmeldung.": "No open poll without response.",
+      "Lege deine erste Terminabstimmung an.": "Create your first scheduling poll.",
+      "Neue Abstimmung": "New poll",
+      "Noch ausstehend: {0}.": "Still pending: {0}.",
+      "Noch keine Terminabstimmung. Lege Terminvorschläge und Teilnehmer an und finde den passenden Termin.": "No scheduling polls yet. Add proposed dates and participants and find the right date.",
+      "Noch keine Terminvorschläge in laufenden Abstimmungen.": "No proposed dates in running polls yet.",
+      "Offen mit Frist": "Open with deadline",
+      "Ohne Rückmeldung": "No response",
+      "Statuswechsel nur über den passenden Ablauf möglich": "Status change only possible via the appropriate workflow",
+      "Termin festlegen": "Set date",
+      "Termin {0}": "Appointment {0}",
+      "{0} Ja": "{0} yes",
+      "{0} Nein": "{0} no",
+      "{0} Teilnehmer": "{0} participants",
+      "{0} Teilnehmer · Frist {1}": "{0} participants · Deadline {1}",
+      "{0} von {1} geantwortet · Frist {2}": "{0} of {1} responded · Deadline {2}",
+      "{0} wenn nötig": "{0} if needed",
+      "Öffnen": "Open"
+    }
+  },
+  "v": 1
+}
