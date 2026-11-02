@@ -37,6 +37,11 @@ export type MessageFieldKey<E extends EntityKey> = E extends keyof MessageFields
 
 export const REQUIRED_MESSAGES: { [E in EntityKey]?: Partial<Record<MessageFieldKey<E>, string>> } = {
   // <custom:messages>
+  terminabstimmungen: { abstimmungsnummer: "Bitte die Abstimmungsnummer eingeben.", titel: "Bitte einen Titel eingeben.", organisator_vorname: "Bitte den Vornamen des Organisators eingeben.", organisator_nachname: "Bitte den Nachnamen des Organisators eingeben.", organisator_email: "Bitte die E-Mail-Adresse des Organisators eingeben.", standarddauer_minuten: "Bitte die Dauer in Minuten eingeben.", zeitzone: "Bitte eine Zeitzone wählen.", antwortfrist: "Bitte die Antwortfrist wählen.", entscheidungsregel: "Bitte eine Entscheidungsregel wählen.", status: "Bitte einen Status wählen." },
+  terminvorschlaege: { terminabstimmung: "Bitte eine Terminabstimmung auswählen.", start: "Bitte den Beginn wählen.", ende: "Bitte das Ende wählen.", reihenfolge: "Bitte die Reihenfolge eingeben." },
+  teilnehmer: { terminabstimmung: "Bitte eine Terminabstimmung auswählen.", vorname: "Bitte den Vornamen eingeben.", nachname: "Bitte den Nachnamen eingeben.", email: "Bitte die E-Mail-Adresse eingeben.", rolle: "Bitte eine Rolle wählen.", zugriffstoken: "Bitte den Zugriffstoken eingeben.", einladungsstatus: "Bitte einen Einladungsstatus wählen." },
+  rueckmeldungen: { terminabstimmung: "Bitte eine Terminabstimmung auswählen.", terminvorschlag: "Bitte einen Terminvorschlag auswählen.", teilnehmer: "Bitte einen Teilnehmer auswählen.", verfuegbarkeit: "Bitte Ja, Wenn nötig oder Nein wählen.", antwortzeitpunkt: "Bitte den Antwortzeitpunkt angeben.", letzte_aenderung: "Bitte den Zeitpunkt der Änderung angeben." },
+  alternative_terminvorschlaege: { terminabstimmung: "Bitte eine Terminabstimmung auswählen.", vorgeschlagen_von: "Bitte den Teilnehmer auswählen.", start: "Bitte den Beginn wählen.", ende: "Bitte das Ende wählen.", status: "Bitte einen Status wählen." },
   // </custom:messages>
 };
 

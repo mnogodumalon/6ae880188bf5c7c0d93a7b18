@@ -1,5 +1,6 @@
 import type { ComponentType, LazyExoticComponent } from 'react';
 // <public:imports>
+import { lazy } from 'react';
 // </public:imports>
 
 // Registry for agent-built (bespoke) public pages. A slug registered here

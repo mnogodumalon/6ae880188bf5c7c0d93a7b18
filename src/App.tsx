@@ -14,6 +14,11 @@ import { IntentPolicyLoader } from '@/components/IntentPolicyLoader';
 import IntentsAdmin from '@/pages/IntentsAdmin';
 import AppMap from '@/pages/AppMap';
 // <custom:imports>
+const IntentTerminabstimmungAnlegenPage = lazy(() => import('@/pages/intents/TerminabstimmungAnlegenPage'));
+import { DashboardSkeleton } from '@/components/DashboardStates';
+const IntentAbstimmungVersendenPage = lazy(() => import('@/pages/intents/AbstimmungVersendenPage'));
+const IntentTerminFestlegenPage = lazy(() => import('@/pages/intents/TerminFestlegenPage'));
+const IntentAbstimmungAbsagenPage = lazy(() => import('@/pages/intents/AbstimmungAbsagenPage'));
 // </custom:imports>
 
 // Lazy: public pages live outside <Layout> and only load on /#/public/:slug —
@@ -85,6 +90,10 @@ export default function App() {
                 <Route path="verwaltung/oeffentliche-seiten" element={<PublicPagesAdmin />} />
                 <Route path="verwaltung/oeffentliche-seiten/:slug/felder" element={<PublicPageFields />} />
                 {/* <custom:routes> */}
+                <Route path="intents/terminabstimmung-anlegen" element={<Suspense fallback={<DashboardSkeleton />}><IntentTerminabstimmungAnlegenPage /></Suspense>} />
+                <Route path="intents/abstimmung-versenden" element={<Suspense fallback={<DashboardSkeleton />}><IntentAbstimmungVersendenPage /></Suspense>} />
+                <Route path="intents/termin-festlegen" element={<Suspense fallback={<DashboardSkeleton />}><IntentTerminFestlegenPage /></Suspense>} />
+                <Route path="intents/abstimmung-absagen" element={<Suspense fallback={<DashboardSkeleton />}><IntentAbstimmungAbsagenPage /></Suspense>} />
                 {/* </custom:routes> */}
                 {/* An unknown hash (a bookmark from before a rebuild renamed the
                     flows, a mistyped link) must not be a blank page. */}
