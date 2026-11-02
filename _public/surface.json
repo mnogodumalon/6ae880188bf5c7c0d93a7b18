@@ -1,4 +1,73 @@
 {
   "version": 1,
-  "pages": []
+  "pages": [
+    {
+      "slug": "terminabstimmung",
+      "component": "Terminabstimmung",
+      "title": "Terminabstimmung",
+      "endpoints": [
+        {
+          "entity": "terminabstimmungen",
+          "op": "list",
+          "fields": [
+            "abstimmungsnummer",
+            "titel",
+            "beschreibung",
+            "ort",
+            "antwortfrist"
+          ],
+          "scope": "r.v_status in ['versendet', 'in_abstimmung']",
+          "scope_description": "zeigt nur Terminabstimmungen mit Status versendet oder in Abstimmung",
+          "max_records": 100
+        },
+        {
+          "entity": "teilnehmer",
+          "op": "list",
+          "fields": [
+            "terminabstimmung",
+            "vorname",
+            "nachname",
+            "organisation"
+          ],
+          "max_records": 500
+        },
+        {
+          "entity": "terminvorschlaege",
+          "op": "list",
+          "fields": [
+            "terminabstimmung",
+            "start",
+            "ende",
+            "ort_abweichend",
+            "reihenfolge"
+          ],
+          "max_records": 500
+        },
+        {
+          "entity": "rueckmeldungen",
+          "op": "list",
+          "fields": [
+            "terminvorschlag",
+            "teilnehmer",
+            "verfuegbarkeit",
+            "antwortzeitpunkt"
+          ],
+          "max_records": 500
+        },
+        {
+          "entity": "rueckmeldungen",
+          "op": "create",
+          "fields": [
+            "terminabstimmung",
+            "terminvorschlag",
+            "teilnehmer",
+            "verfuegbarkeit",
+            "kommentar",
+            "antwortzeitpunkt",
+            "letzte_aenderung"
+          ]
+        }
+      ]
+    }
+  ]
 }

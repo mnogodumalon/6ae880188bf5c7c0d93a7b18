@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "flows": [
+    {
+      "path": "/intents/terminabstimmung-anlegen",
+      "label": "Terminabstimmung anlegen",
+      "description": "Der Organisator legt eine Abstimmung mit Grunddaten, mehreren Terminvorschlägen und mehreren Teilnehmern in einem Zug an.",
+      "file": "src/pages/intents/TerminabstimmungAnlegenPage.tsx",
+      "summary": "/**\n * Terminabstimmung anlegen — 4-Schritt-Wizard.\n * Steps: 1) Grunddaten → 2) Terminvorschläge → 3) Teilnehmer → 4) Prüfen & als Entwurf anlegen.\n * Reads: — (alles über den Flow-Hook). Writes: terminabstimmungen, terminvorschlaege (mehrere), teilnehmer (mehrere).\n * Composes: IntentWizardShell, Bound, ListEntries, StepNav, SummaryStep, SuccessStep.\n */",
+      "components": [
+        "Bound",
+        "IntentWizardShell",
+        "ListEntries",
+        "StepNav",
+        "SuccessStep",
+        "SummaryStep",
+        "WizardStep"
+      ],
+      "writes": []
+    },
+    {
+      "path": "/intents/abstimmung-versenden",
+      "label": "Abstimmung versenden",
+      "description": "Der Organisator gibt eine Abstimmung frei, sodass Teilnehmer antworten können.",
+      "file": "src/pages/intents/AbstimmungVersendenPage.tsx",
+      "summary": "/**\n * Abstimmung versenden — 3-Schritt-Wizard.\n * Steps: 1) Entwurf auswählen → 2) Terminvorschläge & Teilnehmer prüfen → 3) Prüfen & versenden\n * (Status auf „versendet“ setzen, Teilnehmer als eingeladen markieren).\n * Reads: terminabstimmungen, teilnehmer, terminvorschlaege (Zähler). Writes: terminabstimmungen, teilnehmer (updates, via useAbstimmungVersendenFlow).\n * Composes: IntentWizardShell, EntitySelectStep, StepNav, SummaryStep, SuccessStep.\n */",
+      "components": [
+        "EntitySelectStep",
+        "IntentWizardShell",
+        "StepNav",
+        "SuccessStep",
+        "SummaryStep",
+        "WizardStep"
+      ],
+      "writes": []
+    },
+    {
+      "path": "/intents/termin-festlegen",
+      "label": "Termin verbindlich festlegen",
+      "description": "Der Organisator wählt einen Terminvorschlag als finalen Termin, die Abstimmung wird festgelegt, alle anderen Vorschläge werden abgewählt.",
+      "file": "src/pages/intents/TerminFestlegenPage.tsx",
+      "summary": "/**\n * Termin festlegen — 4-Schritt-Wizard.\n * Steps: 1) Terminabstimmung wählen → 2) Terminvorschlag wählen → 3) Absagen & fehlende Rückmeldungen ansehen\n *        → 4) Entscheidungskommentar eintragen, prüfen & festlegen.\n * Reads: terminabstimmungen, terminvorschlaege, rueckmeldungen, teilnehmer. Writes: terminabstimmungen (status, festgelegt_am, entscheidungskommentar), terminvorschlaege (Auswahl).\n * Composes: IntentWizardShell, EntitySelectStep, Bound, StepNav, SummaryStep, SuccessStep, StatusBadge.\n */",
+      "components": [
+        "Bound",
+        "EntitySelectStep",
+        "IntentWizardShell",
+        "StepNav",
+        "SuccessStep",
+        "SummaryStep",
+        "WizardStep"
+      ],
+      "writes": []
+    },
+    {
+      "path": "/intents/abstimmung-absagen",
+      "label": "Abstimmung absagen",
+      "description": "Der Organisator sagt eine Abstimmung mit Kommentar ab.",
+      "file": "src/pages/intents/AbstimmungAbsagenPage.tsx",
+      "summary": "/**\n * Abstimmung absagen — 3-Schritt-Wizard.\n * Steps: 1) Terminabstimmung wählen → 2) Begründung eintragen → 3) Absage bestätigen.\n * Reads: terminabstimmungen. Writes: terminabstimmungen (update: status, abgesagt_am, entscheidungskommentar).\n * Composes: IntentWizardShell, EntitySelectStep, Bound, StepNav, SummaryStep, SuccessStep.\n */",
+      "components": [
+        "Bound",
+        "EntitySelectStep",
+        "IntentWizardShell",
+        "StepNav",
+        "SuccessStep",
+        "SummaryStep",
+        "WizardStep"
+      ],
+      "writes": []
+    }
+  ],
+  "unregistered_pages": []
+}
